@@ -118,7 +118,8 @@ async.waterfall([
             y: Number
         }));
 
-        var n=0;
+        var posts=[];
+
         var parser = parse({delimiter: ';'}, function (err, data) {
             _.each(data, function (value) {
                 var post = new Post({
@@ -129,16 +130,22 @@ async.waterfall([
                 });
 
                 //console.log(post);
-                post.save();
-                n++;
+                posts.push(post);
+            });
+
+            console.log(posts.length);
+            Post.collection.insert(posts, function(err, docs) {
+                if (err) {
+                    callback(err);
+                } else {
+                    console.log('Finished inserting ' + docs.length + ' stops');
+                    callback(null, paths);
+                }
             });
         });
 
         console.log('Parsing stops.csv...');
-        fs.createReadStream(paths.stops).pipe(utf8()).pipe(parser).on('end', function () {
-            console.log('Finished inserting ' + n + ' stops');
-            callback(null, paths);
-        });
+        fs.createReadStream(paths.stops).pipe(utf8()).pipe(parser);
     }, function (paths, callback) {
         var Line = mongoose.model('Line', new Schema({
             lineId: Number,
@@ -146,7 +153,8 @@ async.waterfall([
             type: Number
         }));
 
-        var n=0;
+        var lines = [];
+
         var parser = parse({delimiter: ';'}, function (err, data) {
             _.each(data, function (value) {
                 var line = new Line({
@@ -156,24 +164,29 @@ async.waterfall([
                 });
 
                 //console.log(line);
-                line.save();
-                n++;
+                lines.push(line);
+            });
+
+            Line.collection.insert(lines, function(err, docs) {
+                if (err) {
+                    callback(err);
+                } else {
+                    console.log('Finished inserting ' + docs.length + ' lines');
+                    callback(null, paths);
+                }
             });
         });
 
         console.log('Parsing lines.csv...');
-        fs.createReadStream(paths.lines).pipe(utf8()).pipe(parser).on('end', function () {
-            console.log('Finished inserting ' + n + ' lines');
-            callback(null, paths);
-
-        });
+        fs.createReadStream(paths.lines).pipe(utf8()).pipe(parser);
     }, function (paths, callback) {
         var LineStop = mongoose.model('LinesStop', new Schema({
             lineId: Number,
             stopId: Number
         }));
 
-        var n=0;
+        var lineStops = [];
+
         var parser = parse({delimiter: ';'}, function (err, data) {
             _.each(data, function (value) {
                 var lineStop = new LineStop({
@@ -182,16 +195,22 @@ async.waterfall([
                 });
 
                 //console.log(lineStop);
-                lineStop.save();
-                n++;
+                lineStops.push(lineStop);
             });
         });
 
-        console.log('Parsing lines_stops.csv...');
-        fs.createReadStream(paths.linesStops).pipe(utf8()).pipe(parser).on('end', function () {
-            console.log('Finished inserting ' + n + ' lines_stops');
-            mongoose.disconnect();
-            callback(null);
+        LineStop.collection.insert(lineStops, function(err, docs) {
+            if (err) {
+                callback(err);
+            } else {
+                console.log('Finished inserting ' + docs.length + ' line_stops');
+                callback(null);
+            }
         });
+
+        console.log('Parsing lines_stops.csv...');
+        fs.createReadStream(paths.linesStops).pipe(utf8()).pipe(parser);
+    }, function(callback) {
+        mongoose.connection.close();
     }
 ]);

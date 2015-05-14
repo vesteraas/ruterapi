@@ -211,6 +211,8 @@ async.waterfall([
         console.log('Parsing lines_stops.csv...');
         fs.createReadStream(paths.linesStops).pipe(utf8()).pipe(parser);
     }, function(callback) {
+        console.log('Closing connection...');
         mongoose.connection.close();
+        console.log('Connection closed');
     }
 ]);

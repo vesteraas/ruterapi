@@ -1,0 +1,19 @@
+{
+  "name": "ruterapi",
+  "version": "0.0.1",
+  "description": "Ruter API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Werner Vesteraas <wvesteraas@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "tmp": "*",
+    "async": "*",
+    "underscore": "*",
+    "csv-parse": "*",
+    "to-utf-8": "*",
+    "mongoose": "*"
+  }
+}
